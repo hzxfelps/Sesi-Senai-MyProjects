@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Mentor Maker · SESI Pepper</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #D9DFE8;  /* cinza claro suave (nada de branco) */
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      transition: background 0.2s ease;
+      overflow: hidden;
+      touch-action: none;
+      position: relative;
+    }
+
+    /* Logo SESI bem apagada no fundo */
+    .logo-sesi-watermark {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 160px;
+      height: auto;
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 0;
+      filter: grayscale(0.4);
+    }
+
+    .logo-sesi-watermark svg {
+      width: 100%;
+      fill: #4A5568; /* tom cinza escuro apagado */
+    }
+
+    /* container com fundo cinza médio/escuro, mas suave */
+    .container {
+      width: 90%;
+      max-width: 660px;
+      background: #BEC5D2;  /* cinza médio suave (nada de branco) */
+      border-radius: 24px;
+      padding: 2.2rem 2rem;
+      text-align: center;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+      border: 1px solid #A9B2C0;
+      position: relative;
+      z-index: 2;
+      pointer-events: none;
+      transition: all 0.25s ease;
+    }
+
+    /* modo ouvindo: efeito neon vermelho forte (mantido) */
+    body.ouvindo {
+      background: #CDD4DE;
+    }
+    body.ouvindo .container {
+      border-color: #E31B23;
+      box-shadow: 0 0 0 3px rgba(227, 27, 35, 0.3), 0 0 22px 5px rgba(227, 27, 35, 0.6), 0 12px 28px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #1F2A3E;  /* escuro, legível */
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    h1 span {
+      color: #E31B23; /* vermelho SESI */
+    }
+
+    .sub {
+      font-size: 0.75rem;
+      color: #2D3A4E;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #9AA5B5;
+      display: inline-block;
+      padding-bottom: 8px;
+    }
+
+    #mensagem {
+      font-size: 1.2rem;
+      font-weight: 500;
+      background: #D2D8E2;  /* cinza claro, não branco */
+      color: #1F2A3E;
+      padding: 10px 22px;
+      border-radius: 60px;
+      display: inline-block;
+      margin: 18px 0 26px 0;
+      border: 1px solid #A9B2C0;
+      transition: 0.2s;
+    }
+
+    body.ouvindo #mensagem {
+      background: #E5CBD0;  /* leve tom rosado/cinza avermelhado */
+      border-color: #E31B23;
+      color: #8B1E1E;
+      box-shadow: 0 0 0 3px rgba(227, 27, 35, 0.2);
+    }
+
+    /* botão vermelho SESI com fundo sólido */
+    .btn {
+      background: #E31B23;
+      border: none;
+      padding: 12px 32px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      border-radius: 60px;
+      color: #FFFFFF;
+      cursor: pointer;
+      transition: 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      pointer-events: auto;
+    }
+
+    .btn:hover {
+      background: #C0101A;
+      transform: scale(0.98);
+      box-shadow: 0 6px 16px rgba(227, 27, 35, 0.4);
+    }
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    /* Microfone com efeito neon forte ao ouvir */
+    .mic {
+      margin-top: 42px;
+      width: 90px;
+      height: 90px;
+      background: #D2D8E2;  /* cinza claro, tom uniforme */
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 44px;
+      color: #4A5B70;
+      margin-left: auto;
+      margin-right: auto;
+      opacity: 0;
+      transition: 0.2s ease;
+      border: 1px solid #9AA5B5;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    body.ouvindo .mic {
+      opacity: 1;
+      background: #EAEFF5;
+      color: #E31B23;
+      border-color: #E31B23;
+      animation: neonPulseMic 0.9s infinite alternate;
+      box-shadow: 0 0 0 7px rgba(227, 27, 35, 0.3), 0 0 20px 3px #E31B23;
+    }
+
+    @keyframes neonPulseMic {
+      0% { transform: scale(1); text-shadow: 0 0 1px #E31B23; }
+      100% { transform: scale(1.05); text-shadow: 0 0 14px #E31B23; }
+    }
+
+    .status {
+      margin-top: 28px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      background: #D2D8E2;
+      display: inline-block;
+      padding: 6px 24px;
+      border-radius: 60px;
+      color: #2D3A4E;
+      letter-spacing: 0.5px;
+      border: 1px solid #9AA5B5;
+    }
+
+    body.ouvindo .status {
+      background: #E5CBD0;
+      color: #A12222;
+      border-color: #E31B23;
+      box-shadow: 0 0 0 2px rgba(227,27,35,0.3);
+    }
+
+    .linha-separador {
+      margin-top: 24px;
+      width: 50px;
+      height: 2px;
+      background: #E31B23;
+      margin-left: auto;
+      margin-right: auto;
+      opacity: 0.8;
+    }
+
+    /* responsivo */
+    @media (max-width: 550px) {
+      .container {
+        padding: 1.5rem 1.2rem;
+      }
+      h1 {
+        font-size: 2.2rem;
+      }
+      .btn {
+        padding: 10px 22px;
+        font-size: 1rem;
+      }
+      .mic {
+        width: 72px;
+        height: 72px;
+        font-size: 36px;
+      }
+      .logo-sesi-watermark {
+        width: 120px;
+        bottom: 12px;
+        left: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGO DO SESI BEM APAGADA (marca d'água fixa) -->
+<div class="logo-sesi-watermark" aria-hidden="true">
+  <svg viewBox="0 0 200 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="15" width="18" height="55" fill="#4A5568" />
+    <path d="M35 20 L75 20 L75 32 L50 32 L50 45 L72 45 L72 57 L50 57 L50 70 L75 70 L75 82 L35 82 Z" fill="#4A5568" />
+    <path d="M90 20 L130 20 L130 32 L110 32 L110 45 L128 45 L128 57 L110 57 L110 70 L128 70 L128 82 L90 82 Z" fill="#4A5568" />
+    <circle cx="162" cy="50" r="20" stroke="#4A5568" stroke-width="4" fill="none" />
+    <text x="25" y="88" font-family="Arial, sans-serif" font-weight="bold" font-size="14" fill="#4A5568" letter-spacing="4">SESI</text>
+  </svg>
+</div>
+
+<div class="container">
+  <h1>MENTOR <span>MAKER</span></h1>
+  <div class="sub">Léia · SESI </div>
+  <p id="mensagem">🤖 E aí? Me chama no botão vermelho</p>
+
+  <button class="btn" onclick="ativarEscuta()">
+    <span>🎙️</span> ATIVAR VOZ <span>⚡</span>
+  </button>
+
+  <div class="mic">🎤</div>
+
+  <div class="status" id="status">
+    ● modo espera · toque para falar
+  </div>
+  <div class="linha-separador"></div>
+</div>
+
+<script>
+    let ouvindo = false;
+
+    function ativarEscuta() {
+      const body = document.body;
+      const status = document.getElementById("status");
+      const mensagem = document.getElementById("mensagem");
+
+      if (!ouvindo) {
+        body.classList.add("ouvindo");
+        status.innerText = "🔴 · Fale com a Léia agora";
+        mensagem.innerText = "Estou ouvindo!";
+        ouvindo = true;
+        enviarEstado(1);
+      } else {
+        body.classList.remove("ouvindo");
+        status.innerText = "⚫ espera · clique para falar com o robô";
+        mensagem.innerText = "Olá pessoal 👋 Quando quiserem, podem me chamar!";
+        ouvindo = false;
+        enviarEstado(0);
+      }
+    }
+
+    function enviarEstado(valor) {
+      const url = `http://192.168.1.2:5000/estado?ouvindo=${valor}`;
+      fetch(url, { method: 'GET', cache: 'no-cache' })
+        .then(res => res.ok ? res.json() : Promise.reject('erro servidor'))
+        .then(data => console.log(`✅ Pepper / SESI: estado ${valor}`, data))
+        .catch(err => console.warn(`⚠️ Servidor Pepper offline? ${url}`, err));
+    }
+
+    // atalho tecla espaço
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && document.activeElement !== document.querySelector('.btn')) {
+        e.preventDefault();
+        ativarEscuta();
+      }
+    });
+
+    window.addEventListener('load', () => {
+      console.log('Interface SESI + Pepper — fundo cinza claro suave (sem branco), neon forte');
+    });
+</script>
+</body>
+</html>
