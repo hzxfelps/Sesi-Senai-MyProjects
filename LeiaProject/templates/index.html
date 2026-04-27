@@ -1,0 +1,9 @@
+<h1>Mentor Maker</h1>
+
+<button onclick="ativar()">Ativar voz</button>
+
+<script>
+function ativar() {
+    fetch("http://IPSEUNOTEBOOK:5000/estado?ouvindo=1");
+}
+</script>
