@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Mentor Maker</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #D9DFE8;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  background: #BEC5D2;
+  padding: 30px;
+  margin-top: 50px;
+  border-radius: 16px;
+  text-align: center;
+}
+
+button {
+  padding: 12px 24px;
+  background: #E31B23;
+  color: white;
+  border: none;
+  border-radius: 10px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+  <h1>Mentor Maker</h1>
+  <p>Clique para falar com a Léia</p>
+
+  <button onclick="ativar()">Ativar voz</button>
+</div>
+
+<script>
+function ativar(){
+  fetch("http://IPSEUNOTEBOOK:5000/estado?ouvindo=1")
+}
+</script>
+
+</body>
+</html>
