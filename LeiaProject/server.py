@@ -107,18 +107,34 @@ def update():
 # ------------------------
 
 
-@app.route("/estado")
-def estado():
+@app.route("/estado", methods=["GET"])
+def estado_get():
+    return jsonify({
+        "ouvindo": estado_escuta,
+        "modo": estado_sistema["modo"]
+    })
+
+
+@app.route("/estado", methods=["POST"])
+def estado_set():
     global estado_escuta
 
-    ouvir = request.args.get("ouvindo")
+    data = request.get_json()
 
-    if ouvir is not None:
-        estado_escuta = ouvir == "1"
-        if estado_sistema["modo"] in ("idle", "ouvindo"):
-            estado_sistema["modo"] = "ouvindo" if estado_escuta else "idle"
+    if not data or "ouvindo" not in data:
+        return jsonify({"erro": "campo 'ouvindo' é obrigatório"}), 400
 
-    return jsonify({"ouvindo": estado_escuta})
+    estado_escuta = bool(data["ouvindo"])
+
+    # Ajusta o modo automaticamente
+    if estado_sistema["modo"] in ("idle", "ouvindo"):
+        estado_sistema["modo"] = "ouvindo" if estado_escuta else "idle"
+
+    return jsonify({
+        "ok": True,
+        "ouvindo": estado_escuta,
+        "modo": estado_sistema["modo"]
+    })    
 
 
 # ------------------------

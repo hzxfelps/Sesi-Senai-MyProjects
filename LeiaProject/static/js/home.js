@@ -89,7 +89,15 @@ async function carregarEstado() {
 
 async function alternarEscuta() {
     const pillActive = document.getElementById("listen-pill").classList.contains("active");
-    await fetch(`/estado?ouvindo=${pillActive ? "0" : "1"}`);
+    await fetch("/estado", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        ouvindo: !pillActive
+    })
+});
     await carregarEstado();
 }
 
